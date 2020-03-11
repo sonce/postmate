@@ -25,6 +25,34 @@ You can download the compiled javascript directly [here](/build/postmate.min.js)
 
 ***
 
+## Changes
+
+* Get method can pass parameters
+
+**Child Model Method**
+```javascript
+Test(arg1,arg2){
+  return arg1+arg2
+}
+```
+
+**Parent How to call**
+```javascript
+new Postmate({
+                iframeSelector: "#" + designConfig.iframeId,
+                url: null
+            }).then((client: Postmate.ParentAPI) => {
+                return client.get('Test',1,2)
+            })
+```
+* Support exist iframe
+```javascript
+new Postmate({
+                iframeSelector: "#" + designConfig.iframeId,
+                url: null
+            })
+```
+
 ## Features
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/dollarshaveclub/postmate.svg)](https://greenkeeper.io/)

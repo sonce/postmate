@@ -63,14 +63,14 @@ var messageTypes = {
   emit: 1,
   reply: 1,
   request: 1
-  /**
-   * Ensures that a message is safe to interpret
-   * @param  {Object} message The postmate message being sent
-   * @param  {String|Boolean} allowedOrigin The whitelisted origin or false to skip origin check
-   * @return {Boolean}
-   */
-
 };
+/**
+ * Ensures that a message is safe to interpret
+ * @param  {Object} message The postmate message being sent
+ * @param  {String|Boolean} allowedOrigin The whitelisted origin or false to skip origin check
+ * @return {Boolean}
+ */
+
 var sanitize = function sanitize(message, allowedOrigin) {
   if (typeof allowedOrigin === 'string' && message.origin !== allowedOrigin) return false;
   if (!message.data) return false;
@@ -97,9 +97,7 @@ var resolveValue = function resolveValue(model, property) {
  * @param {Object} info Information on the consumer
  */
 
-var ParentAPI =
-/*#__PURE__*/
-function () {
+var ParentAPI = /*#__PURE__*/function () {
   function ParentAPI(info) {
     var _this = this;
 
@@ -107,6 +105,7 @@ function () {
     this.frame = info.frame;
     this.child = info.child;
     this.childOrigin = info.childOrigin;
+    this.createIframeByMe = info.createIframeByMe;
     this.events = {};
 
     if (process.env.NODE_ENV !== 'production') {
@@ -198,7 +197,7 @@ function () {
     }
 
     window.removeEventListener('message', this.listener, false);
-    this.frame.parentNode.removeChild(this.frame);
+    if (this.createIframeByMe) this.frame.parentNode.removeChild(this.frame);
   };
 
   return ParentAPI;
@@ -208,9 +207,7 @@ function () {
  * @param {Object} info Information on the consumer
  */
 
-var ChildAPI =
-/*#__PURE__*/
-function () {
+var ChildAPI = /*#__PURE__*/function () {
   function ChildAPI(info) {
     var _this3 = this;
 
@@ -238,7 +235,8 @@ function () {
 
       if (e.data.postmate === 'call') {
         if (property in _this3.model && typeof _this3.model[property] === 'function') {
-          _this3.model[property](data);
+          // this.model[property](data)
+          _this3.model[property].apply(_this3, data);
         }
 
         return;
@@ -281,9 +279,7 @@ function () {
  * @type {Class}
  */
 
-var Postmate =
-/*#__PURE__*/
-function () {
+var Postmate = /*#__PURE__*/function () {
   // eslint-disable-line no-undef
   // Internet Explorer craps itself
 
@@ -299,13 +295,22 @@ function () {
         url = _ref2.url,
         name = _ref2.name,
         _ref2$classListArray = _ref2.classListArray,
-        classListArray = _ref2$classListArray === void 0 ? [] : _ref2$classListArray;
+        classListArray = _ref2$classListArray === void 0 ? [] : _ref2$classListArray,
+        _ref2$iframeSelector = _ref2.iframeSelector,
+        iframeSelector = _ref2$iframeSelector === void 0 ? undefined : _ref2$iframeSelector;
     // eslint-disable-line no-undef
     this.parent = window;
-    this.frame = document.createElement('iframe');
+
+    if (iframeSelector) {
+      this.frame = document.querySelector(iframeSelector);
+    } else {
+      this.frame = document.createElement('iframe');
+      this.createIframeByMe = true;
+    }
+
     this.frame.name = name || '';
     this.frame.classList.add.apply(this.frame.classList, classListArray);
-    container.appendChild(this.frame);
+    if (this.createIframeByMe) container.appendChild(this.frame);
     this.child = this.frame.contentWindow || this.frame.contentDocument.parentWindow;
     this.model = model || {};
     return this.sendHandshake(url);
@@ -322,7 +327,7 @@ function () {
   _proto3.sendHandshake = function sendHandshake(url) {
     var _this4 = this;
 
-    var childOrigin = resolveOrigin(url);
+    var childOrigin = resolveOrigin(url ? url : this.frame.src);
     var attempt = 0;
     var responseInterval;
     return new Postmate.Promise(function (resolve, reject) {
@@ -361,6 +366,10 @@ function () {
       var doSend = function doSend() {
         attempt++;
 
+        if (attempt > maxHandshakeRequests) {
+          clearInterval(responseInterval);
+        }
+
         if (process.env.NODE_ENV !== 'production') {
           log("Parent: Sending handshake attempt " + attempt, {
             childOrigin: childOrigin
@@ -372,10 +381,6 @@ function () {
           type: messageType,
           model: _this4.model
         }, childOrigin);
-
-        if (attempt === maxHandshakeRequests) {
-          clearInterval(responseInterval);
-        }
       };
 
       var loaded = function loaded() {
@@ -395,7 +400,7 @@ function () {
         });
       }
 
-      _this4.frame.src = url;
+      if (url) _this4.frame.src = url;else loaded();
     });
   };
 
@@ -417,9 +422,7 @@ Postmate.Promise = function () {
   }
 }();
 
-Postmate.Model =
-/*#__PURE__*/
-function () {
+Postmate.Model = /*#__PURE__*/function () {
   /**
    * Initializes the child, model, parent, and responds to the Parents handshake
    * @param {Object} model Hash of values, functions, or promises

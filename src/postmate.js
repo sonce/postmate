@@ -297,7 +297,7 @@ class Postmate {
    * @return {Promise}     Promise that resolves when the handshake is complete
    */
   sendHandshake(url) {
-    const childOrigin = resolveOrigin(url ? url : this.frame.src)
+    let childOrigin=""
     let attempt = 0
     let responseInterval
     return new Postmate.Promise((resolve, reject) => {
@@ -344,6 +344,9 @@ class Postmate {
       }
 
       const loaded = () => {
+        // reset attempt to zero,and resolve origin
+        attempt = 0
+        childOrigin = resolveOrigin(url ? url : this.frame.src)
         doSend()
         responseInterval = setInterval(doSend, 500)
       }

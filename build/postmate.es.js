@@ -326,7 +326,7 @@ var Postmate = /*#__PURE__*/function () {
   _proto3.sendHandshake = function sendHandshake(url) {
     var _this4 = this;
 
-    var childOrigin = resolveOrigin(url ? url : this.frame.src);
+    var childOrigin = "";
     var attempt = 0;
     var responseInterval;
     return new Postmate.Promise(function (resolve, reject) {
@@ -383,6 +383,9 @@ var Postmate = /*#__PURE__*/function () {
       };
 
       var loaded = function loaded() {
+        // reset attempt to zero,and resolve origin
+        attempt = 0;
+        childOrigin = resolveOrigin(url ? url : _this4.frame.src);
         doSend();
         responseInterval = setInterval(doSend, 500);
       };

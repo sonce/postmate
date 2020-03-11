@@ -80,9 +80,9 @@ export const sanitize = (message, allowedOrigin) => {
  *                            passed to functions in the child model
  * @return {Promise}
  */
-export const resolveValue = (model, property) => {
+export const resolveValue = (model, property, data) => {
   const unwrappedContext = typeof model[property] === 'function'
-    ? model[property]() : model[property]
+    ? model[property].apply(model, data) : model[property]
   return Postmate.Promise.resolve(unwrappedContext)
 }
 
@@ -131,7 +131,7 @@ export class ParentAPI {
     }
   }
 
-  get(property) {
+  get(property,data) {
     return new Postmate.Promise((resolve) => {
       // Extract data from response and kill listeners
       const uid = generateNewMessageId()
@@ -151,6 +151,7 @@ export class ParentAPI {
         type: messageType,
         property,
         uid,
+        data
       }, this.childOrigin)
     })
   }
@@ -211,13 +212,13 @@ export class ChildAPI {
       if (e.data.postmate === 'call') {
         if (property in this.model && typeof this.model[property] === 'function') {
           // this.model[property](data)
-          this.model[property].apply(this,data)
+          this.model[property].apply(this, data)
         }
         return
       }
 
       // Reply to Parent
-      resolveValue(this.model, property)
+      resolveValue(this.model, property, data)
         .then(value => e.source.postMessage({
           property,
           postmate: 'reply',

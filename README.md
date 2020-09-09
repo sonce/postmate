@@ -39,7 +39,7 @@ Test(arg1,arg2){
 **Parent How to call**
 ```javascript
 new Postmate({
-                iframeSelector: "#" + designConfig.iframeId,
+                iframeOrSelector: "#" + designConfig.iframeId,
                 url: null
             }).then((client: Postmate.ParentAPI) => {
                 return client.get('Test',1,2)
@@ -48,7 +48,7 @@ new Postmate({
 * Support exist iframe
 ```javascript
 new Postmate({
-                iframeSelector: "#" + designConfig.iframeId,
+                iframeOrSelector: "#" + designConfig.iframeId,
                 url: null
             })
 ```

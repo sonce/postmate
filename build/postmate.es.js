@@ -1,6 +1,6 @@
 /**
   postmate - A powerful, simple, promise-based postMessage library
-  @version v1.6.0
+  @version v1.6.1
   @link https://github.com/dollarshaveclub/postmate
   @author Jacob Kelley <jakie8@gmail.com>
   @license MIT
@@ -295,13 +295,13 @@ var Postmate = /*#__PURE__*/function () {
         name = _ref2.name,
         _ref2$classListArray = _ref2.classListArray,
         classListArray = _ref2$classListArray === void 0 ? [] : _ref2$classListArray,
-        _ref2$iframeSelector = _ref2.iframeSelector,
-        iframeSelector = _ref2$iframeSelector === void 0 ? undefined : _ref2$iframeSelector;
+        _ref2$iframeOrSelecto = _ref2.iframeOrSelector,
+        iframeOrSelector = _ref2$iframeOrSelecto === void 0 ? undefined : _ref2$iframeOrSelecto;
     // eslint-disable-line no-undef
     this.parent = window;
 
-    if (iframeSelector) {
-      this.frame = document.querySelector(iframeSelector);
+    if (iframeOrSelector) {
+      if (typeof iframeOrSelector === 'string') this.frame = document.querySelector(iframeOrSelector);else this.frame = iframeOrSelector;
     } else {
       this.frame = document.createElement('iframe');
       this.createIframeByMe = true;

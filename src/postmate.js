@@ -131,7 +131,7 @@ export class ParentAPI {
     }
   }
 
-  get(property,data) {
+  get(property, data) {
     return new Postmate.Promise((resolve) => {
       // Extract data from response and kill listeners
       const uid = generateNewMessageId()
@@ -271,11 +271,14 @@ class Postmate {
     url,
     name,
     classListArray = [],
-    iframeSelector = undefined
+    iframeOrSelector = undefined,
   }) { // eslint-disable-line no-undef
     this.parent = window
-    if (iframeSelector) {
-      this.frame = document.querySelector(iframeSelector)
+    if (iframeOrSelector) {
+      if (typeof iframeOrSelector === 'string')
+        this.frame = document.querySelector(iframeOrSelector)
+      else
+        this.frame = iframeOrSelector
     }
     else {
       this.frame = document.createElement('iframe')
@@ -297,7 +300,7 @@ class Postmate {
    * @return {Promise}     Promise that resolves when the handshake is complete
    */
   sendHandshake(url) {
-    let childOrigin=""
+    let childOrigin = ""
     let attempt = 0
     let responseInterval
     return new Postmate.Promise((resolve, reject) => {

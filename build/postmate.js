@@ -404,7 +404,7 @@ var Postmate = /*#__PURE__*/function () {
         });
       }
 
-      if (url && _this4.createIframeByMe) _this4.frame.src = url;else loaded();
+      if (url) _this4.frame.src = url;else loaded();
     });
   };
 

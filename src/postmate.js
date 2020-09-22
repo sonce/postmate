@@ -363,7 +363,7 @@ class Postmate {
       if (process.env.NODE_ENV !== 'production') {
         log('Parent: Loading frame', { url })
       }
-      if (url&&this.createIframeByMe)
+      if (url)
         this.frame.src = url
       else
         loaded()
